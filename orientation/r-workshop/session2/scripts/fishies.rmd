@@ -1,0 +1,54 @@
+## Plot Fishies
+
+### Get iNaturalist observations of Silver Carp (Hypophthalmichthys molitrix), save to csv
+```{r}
+library(here)
+library(rinat)
+h_molitrix <- get_inat_obs(
+  taxon_name = "hypophthalmichthys molitrix",
+  quality = "research",
+  maxresults = 10000
+)
+write_csv(h_molitrix, here("data", "hypophthalmichthys_molitrix_inat.csv"))
+```
+### Other Imports
+```{r}
+library(tidyverse)
+library(janitor)
+library(here)
+```
+
+### Read in data
+```{r}
+h_molitrix <- read_csv(here("data", "hypophthalmichthys_molitrix_inat.csv"))
+```
+
+### Plot observation frequency on a map
+```{r}
+# use leaflet to plot
+library(leaflet)
+leaflet(h_molitrix) %>%
+  addTiles() %>%
+  addCircleMarkers(
+    ~longitude, ~latitude,
+    radius = 10,
+    color = "blue",
+    stroke = FALSE,
+    fillOpacity = 0.5,
+    popup = ~ paste(
+      "Observed on:", observed_on, "<br>",
+      "Location:", place_guess, "<br>",
+      "Observer:", user_login, "<br>",
+      "iNat Link:", paste0(
+        "<a href='https://www.inaturalist.org/observations/",
+        id,
+        "' target='_blank'>",
+        id,
+        "</a>"
+      )
+    ),
+    clusterOptions = markerClusterOptions() # cluster occurances together
+  )
+```
+
+
